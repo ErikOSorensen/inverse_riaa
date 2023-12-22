@@ -8,6 +8,7 @@
     (title "Inverse RIAA filter")
     (date "2023-12-10")
     (company "Erik Ø. Sørensen, LB3TH")
+    (comment 1 "https://github.com/ErikOSorensen/inverse_riaa")
   )
 
   (lib_symbols
