@@ -30,7 +30,7 @@ First build with the front panel from jlcpcb had some issues:
 2. The mounting holes were off by a bit and quite tight. I drilled them out to make the front panel sit flat, not pretty.
 3. The grounding of the case needs a bit more work; since the box is anodized there is not good contact throughout.
 
-For this first build I have used Susumu 0.5% resistors and Murata 1% capacitors (paralleled up).
+For this first build I have used Susumu 0.5% resistors and Murata 1% capacitors.
 
 
 ## Characterization
