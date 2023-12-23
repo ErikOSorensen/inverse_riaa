@@ -22,14 +22,6 @@ This is a passive filter. I have built one into a Hammond 1455N1201BK extruded b
 with isolated (stereo) BNCs in and out. There is an option to add 20 dB of attenuation
 for testing MC phono preamps.
 
-
-
-First build with the front panel from jlcpcb had some issues:
-
-1. The switch and the BNC connectors should have been more forward on the board, accounting for the plastic bezel. As it is now, the nuts on the BNC connectors (the only thing holding the filter board to the front panel) can't be tightened too much, or the front panel will bend.
-2. The mounting holes were off by a bit and quite tight. I drilled them out to make the front panel sit flat, not pretty.
-3. The grounding of the case needs a bit more work; since the box is anodized there is not good contact throughout.
-
 For this first build I have used Susumu 0.5% resistors and Murata 1% capacitors.
 
 
