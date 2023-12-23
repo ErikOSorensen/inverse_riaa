@@ -42,5 +42,8 @@ most of the frequency range.
 ![Measurements with Analog Discovery 2](./graphics/deviations.png)
 
 Note that the measurements (in the MM path) were taken with an Analog Discovery
-2, whichonly has a 14 bit ADC, so there is a lot of noise and quantization
-error at the lower frequencies.
+2, which only has a 14 bit ADC, so there is a lot of noise and quantization
+error at the lower frequencies where attenuation is greatest. With the AD2, the
+dynamic range is not sufficient to test the MC path, but since that only
+involves a single extra resistor (which can be verified with a DMM), that
+shouldn't involve any additional concerns.
