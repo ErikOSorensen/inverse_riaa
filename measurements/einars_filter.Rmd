@@ -1,0 +1,115 @@
+---
+title: "Characterizing a built up filter"
+author: "Erik Ø. Sørensen"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(scales)
+```
+
+I made an attempt at getting my fancy audio interface (MOTU M4) to work
+with REW, but only ended up frustrated. Instead I grabbed my Analog
+Discovery 2, which can run in network analyzer mode using the "Waveforms" 
+software. Unfortunately, the the analog discovery only has a 14 bit ADC
+and I haven't got an easy to use amplifier within reach, so testing
+the MC output of the filter won't be possible. I also expect a substantial
+amount of noise in the lower frequency, where there should be more than
+60 dB of attenuation.
+
+The setup is: BNC cable connecting output 1 from the Analog Discovery 2
+generator 1 to the input of the filter, and similarly a BNC cable from the
+filter output back to the oscope input 1 on the Analog Discovery.
+
+I have used the LT-spice software to calculate the expected true
+curve (under assumption of a low impedance signal generator (100 Ohm) and a
+high impedance receiver at the output of the filter).
+
+```{r include=FALSE}
+lns <- readLines("ltspice_iriaa.txt", n=-1, encoding="UTF-8")
+names <- strsplit(lns[1],"\t")
+df_LT <- tibble(frequency = numeric(),
+                vmc_db = numeric(),
+                vmc_ph = numeric(),
+                vmm_db = numeric(),
+                vmm_ph = numeric())
+for (row in lns[-1]) {
+  xs <- strsplit(row, '\t')[[1]]
+  f <- as.double( xs[1] )
+  x1 <- str_extract_all(xs[2], "[+-]?(\\d+([.]\\d*)?(e[+-]?\\d+)?|[.]\\d+(e[+-]?\\d+)?)")[[1]]
+  x2 <- str_extract_all(xs[3], "[+-]?(\\d+([.]\\d*)?(e[+-]?\\d+)?|[.]\\d+(e[+-]?\\d+)?)")[[1]]
+  df_LT <- df_LT %>% add_row(frequency = f,
+                             vmc_db = as.double(x1[1]),
+                             vmc_ph = as.double(x1[2]),
+                             vmm_db = as.double(x2[1]),
+                             vmm_ph = as.double(x2[2]))
+}
+df_LT <- df_LT |> filter(frequency <=20000) |>
+  mutate(freq_string = format(round(frequency,1), nsmall=1,trim=TRUE ))
+```
+
+
+
+```{r include=FALSE}
+# Reading data from the analog discovery Waveforms software
+mmr_df <- read_csv("2023-12-22T1922_R-MM.csv", comment = "#") |>
+  mutate(channel = "right")
+mml_df <- read_csv("2023-12-22T1924_L-MM.csv", comment = "#") |>
+  mutate(channel = "left")
+mm_df <- mmr_df |> bind_rows(mml_df) |>
+  rename(freq = `Frequency (Hz)`,
+         magnitude = `Channel 1 Magnitude (dB)`) |>
+  mutate(freq_string = format(round(freq,1), nsmall=1,trim=TRUE))
+df <- mm_df |> left_join(df_LT)
+```
+
+First, let's have a look at how the measurements compares to the calcuated
+numbers from LT-spice:
+
+```{r echo=FALSE}
+df |> mutate(error_db = vmm_db -magnitude) |>
+  ggplot(aes(x=frequency, y = error_db)) +
+  geom_line() +
+  theme_bw() +
+  labs(x = "Frequency [Hz]", y = "Measured deviation [dB]",
+       title = "Measured deviation in frequency response") +
+  theme(plot.title.position = "plot") +
+  scale_x_log10() +
+  facet_wrap(~channel)
+ggsave("../graphics/deviations.png", width = 1000, height = 600, 
+       units = "px", bg = "white", scale=0.5)
+```
+
+We see that there is a lot of noise below 100Hz, which is not strange
+taking the measurement equipment into account (and also some quantization error). Above 100Hz, most
+of the measurements, in both channels, are about 0.25dB attenuated compared to the LT-spice numbers. This variation from the predicted numbers in the levels
+isn't really a problem. 
+
+Both channels have a slight dip around 5kHz, about 0.2dB down. This indicates
+an issue with how the higher time constant is implemented. That it is the
+same in both channels maybe indicates something systematic. 
+
+As can be seen from the graph above, the channel balance is good. For 
+reference, this is the deviation from perfect channel balance by frequency:
+
+```{r echo=FALSE}
+df_imbalance <- df |> pivot_wider(id_cols = frequency, names_from = channel, 
+                                  values_from = magnitude) |>
+  mutate(imbalance = left - right)
+df_imbalance |> ggplot(aes(x=frequency, y = imbalance)) +
+  geom_line() +
+  theme_bw() +
+  labs(x = "Frequency [Hz]", y = "Imbalance [dB]",
+       title = "Measured left/right imbalance in frequency response") +
+  theme(plot.title.position = "plot") +
+  scale_x_log10() 
+
+#|>
+#  mutate(magnitude_difference = )
+```
+
+
+
