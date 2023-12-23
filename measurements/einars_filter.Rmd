@@ -79,8 +79,8 @@ df |> mutate(error_db = vmm_db -magnitude) |>
   theme(plot.title.position = "plot") +
   scale_x_log10() +
   facet_wrap(~channel)
-ggsave("../graphics/deviations.png", width = 1000, height = 600, 
-       units = "px", bg = "white", scale=0.5)
+ggsave("../graphics/deviations.png", width = 2000, height = 1200, 
+       units = "px", bg = "white")
 ```
 
 We see that there is a lot of noise below 100Hz, which is not strange
