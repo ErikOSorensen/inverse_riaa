@@ -29,5 +29,6 @@ most of the frequency range.
 
 ![Measurements with Analog Discovery 2](./graphics/deviations.png)
 
-Note that the measurements were taken with an Analog Discovery 2, which only has
-a 14 bit ADC, so there is a lot of noise and quantization error at the lower frequencies.
+Note that the measurements (in the MM path) were taken with an Analog Discovery
+2, which only has a 14 bit ADC, so there is a lot of noise and quantization
+error at the lower frequencies.
